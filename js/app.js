@@ -19,6 +19,13 @@ class App {
         this.currentMode = null; // 'guided' or 'focus'
     }
 
+    formatDuration(seconds) {
+        if (seconds < 60) return seconds + 's';
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return secs > 0 ? `${mins}m${secs}s` : `${mins}m`;
+    }
+
     init() {
         this.visual.init();
 
@@ -30,7 +37,7 @@ class App {
         };
 
         // Initialize controls for default shader
-        this.visual.setShader('neonRings');
+        this.visual.setShader('sunset');
 
         this.visual.start(); // Start visual loop immediately for background
 
@@ -86,15 +93,118 @@ class App {
             const val = parseFloat(e.target.value);
             document.getElementById('hz-display').textContent = val + ' Hz';
             if (this.audio.isPlaying) {
-                this.audio.update(200, val); // Base 200Hz fixed for now
+                const baseFreq = parseFloat(document.getElementById('base-hz').value);
+                this.audio.update(baseFreq, val);
             }
         });
 
-        // Shader Selection
-        document.querySelectorAll('.shader-preview').forEach(btn => {
+        // Base Frequency Control
+        document.getElementById('base-hz').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            document.getElementById('base-hz-display').textContent = val + ' Hz';
+            if (this.audio.isPlaying) {
+                const beatFreq = parseFloat(document.getElementById('focus-hz').value);
+                this.audio.update(val, beatFreq);
+            }
+        });
+
+        // Volume Control
+        document.getElementById('volume').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            document.getElementById('volume-display').textContent = val + '%';
+            this.audio.setVolume(val / 100);
+        });
+
+        // Duration / Infinite Toggle
+        document.getElementById('infinite-toggle').addEventListener('click', (e) => {
+            const btn = e.target;
+            const slider = document.getElementById('duration');
+            const display = document.getElementById('duration-display');
+            const hint = document.getElementById('duration-hint');
+
+            btn.classList.toggle('active');
+            const isInfinite = btn.classList.contains('active');
+
+            if (isInfinite) {
+                slider.disabled = true;
+                slider.style.opacity = '0.3';
+                hint.style.opacity = '0.3';
+                display.textContent = '∞';
+            } else {
+                slider.disabled = false;
+                slider.style.opacity = '1';
+                hint.style.opacity = '1';
+                display.textContent = this.formatDuration(parseInt(slider.value));
+            }
+        });
+
+        document.getElementById('duration').addEventListener('input', (e) => {
+            document.getElementById('duration-display').textContent = this.formatDuration(parseInt(e.target.value));
+        });
+
+        // Preview Button - Live audio while configuring
+        document.getElementById('btn-preview').addEventListener('click', () => {
+            const btn = document.getElementById('btn-preview');
+            const playIcon = document.getElementById('preview-icon-play');
+            const stopIcon = document.getElementById('preview-icon-stop');
+            const previewText = document.getElementById('preview-text');
+            const status = document.getElementById('preview-status');
+
+            if (this.audio.isPlaying) {
+                // Stop preview
+                this.audio.stop();
+                btn.classList.remove('playing');
+                playIcon.style.display = 'block';
+                stopIcon.style.display = 'none';
+                previewText.textContent = 'Preview';
+                status.textContent = '';
+            } else {
+                // Start preview
+                const baseFreq = parseFloat(document.getElementById('base-hz').value);
+                const beatFreq = parseFloat(document.getElementById('focus-hz').value);
+                const volume = parseFloat(document.getElementById('volume').value) / 100;
+
+                this.audio.setVolume(volume);
+                this.audio.play(baseFreq, beatFreq);
+
+                btn.classList.add('playing');
+                playIcon.style.display = 'none';
+                stopIcon.style.display = 'block';
+                previewText.textContent = 'Stop';
+                status.textContent = `Playing: ${baseFreq}Hz + ${beatFreq}Hz beat`;
+            }
+        });
+
+        // Presets Selection
+        document.querySelectorAll('.preset-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.shader-preview').forEach(b => b.classList.remove('selected'));
-                e.currentTarget.classList.add('selected');
+                // Update active state
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+
+                // Get preset values
+                const baseFreq = parseFloat(e.currentTarget.dataset.base);
+                const beatFreq = parseFloat(e.currentTarget.dataset.beat);
+
+                // Update sliders
+                document.getElementById('base-hz').value = baseFreq;
+                document.getElementById('base-hz-display').textContent = baseFreq + ' Hz';
+                document.getElementById('focus-hz').value = beatFreq;
+                document.getElementById('hz-display').textContent = beatFreq + ' Hz';
+
+                // Update audio if playing
+                if (this.audio.isPlaying) {
+                    this.audio.update(baseFreq, beatFreq);
+                    document.getElementById('preview-status').textContent = `Playing: ${baseFreq}Hz + ${beatFreq}Hz beat`;
+                }
+            });
+        });
+
+        // Shader Selection
+        document.querySelectorAll('.shader-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.shader-btn').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
                 const shader = e.currentTarget.dataset.shader;
 
                 const iframe = document.getElementById('external-shader-frame');
@@ -129,8 +239,12 @@ class App {
 
         // Start Audio
         if (this.currentMode === 'focus') {
+            const baseFreq = parseFloat(document.getElementById('base-hz').value);
             const beatFreq = parseFloat(document.getElementById('focus-hz').value);
-            this.audio.play(200, beatFreq);
+            const volume = parseFloat(document.getElementById('volume').value) / 100;
+
+            this.audio.setVolume(volume);
+            this.audio.play(baseFreq, beatFreq);
         }
 
         // Start Breath

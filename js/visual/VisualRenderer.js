@@ -15,7 +15,7 @@ export class VisualRenderer {
         this.mesh = null;
         this.startTime = 0;
         this.animationId = null;
-        this.currentShaderName = 'neonRings';
+        this.currentShaderName = 'sunset';
         this.onShaderChanged = null; // Callback for UI
     }
 
@@ -33,7 +33,7 @@ export class VisualRenderer {
         const geometry = new THREE.PlaneGeometry(2, 2);
 
         // Initial Shader
-        const shaderData = ShaderStore.neonRings;
+        const shaderData = ShaderStore.sunset;
         const uniforms = this.createUniforms(shaderData.uniforms);
 
         this.material = new THREE.ShaderMaterial({

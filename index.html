@@ -78,11 +78,56 @@
 
             <!-- Focus Mode Content -->
             <div id="selection-focus" class="control-panel">
-                <h2>Configure Focus</h2>
+                <div class="panel-title">Configure Focus</div>
 
+                <!-- Binaural Setup Section -->
+                <div class="slider-label" style="margin-bottom: 15px; font-size: 0.9rem; font-weight: 600;">Binaural
+                    Setup</div>
+
+                <!-- Presets -->
+                <div class="presets-grid" style="margin-bottom: 20px;">
+                    <button class="preset-btn" data-base="100" data-beat="2">
+                        <span>Delta</span>
+                        <span class="preset-freq">2 Hz</span>
+                    </button>
+                    <button class="preset-btn" data-base="150" data-beat="6">
+                        <span>Theta</span>
+                        <span class="preset-freq">6 Hz</span>
+                    </button>
+                    <button class="preset-btn" data-base="200" data-beat="10">
+                        <span>Alpha</span>
+                        <span class="preset-freq">10 Hz</span>
+                    </button>
+                    <button class="preset-btn" data-base="250" data-beat="20">
+                        <span>Beta</span>
+                        <span class="preset-freq">20 Hz</span>
+                    </button>
+                    <button class="preset-btn" data-base="300" data-beat="40">
+                        <span>Gamma</span>
+                        <span class="preset-freq">40 Hz</span>
+                    </button>
+                    <button class="preset-btn" data-base="200" data-beat="7.83">
+                        <span>Earth</span>
+                        <span class="preset-freq">7.83 Hz</span>
+                    </button>
+                </div>
+
+                <!-- Divider -->
+                <hr class="section-divider" style="margin: 15px 0;">
+
+                <!-- Base Frequency -->
                 <div class="slider-group">
                     <div class="slider-label">
-                        <span>Binaural Frequency</span>
+                        <span>Base Frequency</span>
+                        <span id="base-hz-display">200 Hz</span>
+                    </div>
+                    <input type="range" id="base-hz" min="50" max="500" value="200" step="10">
+                </div>
+
+                <!-- Beat Frequency -->
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Beat Frequency</span>
                         <span id="hz-display">10 Hz</span>
                     </div>
                     <input type="range" id="focus-hz" min="1" max="40" value="10" step="0.5">
@@ -91,21 +136,64 @@
                     </div>
                 </div>
 
+                <!-- Duration -->
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Duration</span>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button id="infinite-toggle" class="toggle-btn active">Infinite</button>
+                            <span id="duration-display">∞</span>
+                        </div>
+                    </div>
+                    <input type="range" id="duration" min="30" max="300" value="60" step="30" disabled
+                        style="opacity: 0.3;">
+                    <div id="duration-hint" style="font-size: 0.7rem; color: #666; margin-top: 5px; opacity: 0.3;">
+                        30s • 1min • 2min • 3min • 4min • 5min
+                    </div>
+                </div>
+
+                <!-- Volume -->
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Volume</span>
+                        <span id="volume-display">50%</span>
+                    </div>
+                    <input type="range" id="volume" min="0" max="100" value="50" step="5">
+                </div>
+
+                <!-- Preview Button -->
+                <div class="preview-container" style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+                    <button id="btn-preview" class="btn-preview">
+                        <svg id="preview-icon-play" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
+                        <svg id="preview-icon-stop" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"
+                            style="display: none;">
+                            <path d="M6 6h12v12H6z" />
+                        </svg>
+                        <span id="preview-text">Preview</span>
+                    </button>
+                    <span id="preview-status" style="font-size: 0.75rem; color: #666;"></span>
+                </div>
+
+                <!-- Divider -->
+                <hr class="section-divider">
+
                 <div style="margin-top: 20px;">
-                    <div class="slider-label" style="margin-bottom: 10px;">Visual Theme</div>
-                    <div class="selection-grid" style="margin-bottom: 0;">
-                        <div class="shader-preview selected" data-shader="neonRings" data-label="Neon Rings"></div>
-                        <div class="shader-preview" data-shader="starTunnel" data-label="Star Tunnel"></div>
-                        <div class="shader-preview" data-shader="oceanWaves" data-label="Ocean Waves"></div>
-                        <div class="shader-preview" data-shader="chromeDream" data-label="Chrome Dreams"></div>
-                        <div class="shader-preview" data-shader="hyperdrive" data-label="Hyperdrive"></div>
-                        <div class="shader-preview" data-shader="starNest" data-label="Star Nest"></div>
-                        <div class="shader-preview" data-shader="starTunnel3D" data-label="Star Tunnel 3D"></div>
-                        <div class="shader-preview" data-shader="sunset" data-label="Sunset"></div>
-                        <div class="shader-preview" data-shader="vortex" data-label="Vortex"></div>
-                        <div class="shader-preview" data-shader="octahedron" data-label="Octahedron"></div>
-                        <div class="shader-preview" data-shader="sacredGeometry" data-label="Sacred Geometry"></div>
-                        <div class="shader-preview" data-shader="rainForest" data-label="Rain Forest"></div>
+                    <div class="slider-label" style="margin-bottom: 10px; font-weight: 600;">Visual Theme</div>
+                    <div class="shaders-grid">
+                        <button class="shader-btn" data-shader="neonRings">Neon Rings</button>
+                        <button class="shader-btn" data-shader="starTunnel">Star Tunnel</button>
+                        <button class="shader-btn" data-shader="oceanWaves">Ocean Waves</button>
+                        <button class="shader-btn" data-shader="chromeDream">Chrome Dreams</button>
+                        <button class="shader-btn" data-shader="hyperdrive">Hyperdrive</button>
+                        <button class="shader-btn" data-shader="starNest">Star Nest</button>
+                        <button class="shader-btn" data-shader="starTunnel3D">Star Tunnel 3D</button>
+                        <button class="shader-btn active" data-shader="sunset">Sunset</button>
+                        <button class="shader-btn" data-shader="vortex">Vortex</button>
+                        <button class="shader-btn" data-shader="octahedron">Octahedron</button>
+                        <button class="shader-btn" data-shader="sacredGeometry">Sacred Geometry</button>
+                        <button class="shader-btn" data-shader="rainForest">Rain Forest</button>
                     </div>
                 </div>
 

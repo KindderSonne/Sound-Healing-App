@@ -10,7 +10,6 @@ export class BinauralSynth {
         this.leftOsc = null;
         this.rightOsc = null;
         this.gainNode = null;
-        this.analyser = null;
         this.isPlaying = false;
         this.volume = 0.5;
     }
@@ -25,11 +24,7 @@ export class BinauralSynth {
             this.gainNode = this.audioContext.createGain();
             this.gainNode.gain.value = this.volume;
 
-            this.analyser = this.audioContext.createAnalyser();
-            this.analyser.fftSize = 2048;
-
-            this.gainNode.connect(this.analyser);
-            this.analyser.connect(this.audioContext.destination);
+            this.gainNode.connect(this.audioContext.destination);
         }
     }
 
@@ -129,11 +124,4 @@ export class BinauralSynth {
         }
     }
 
-    /**
-     * Get analyser node for visualization
-     * @returns {AnalyserNode}
-     */
-    getAnalyser() {
-        return this.analyser;
-    }
 }
