@@ -7,6 +7,7 @@ import { BinauralSynth } from './audio/BinauralSynth.js';
 import { VisualRenderer } from './visual/VisualRenderer.js';
 import { BreathGuide } from './ui/BreathGuide.js';
 import { UIManager } from './ui/UIManager.js';
+import { GuidedPlayer } from './guided/GuidedPlayer.js';
 
 class App {
     constructor() {
@@ -14,9 +15,11 @@ class App {
         this.visual = new VisualRenderer('visual-container');
         this.breath = new BreathGuide('breath-guide');
         this.ui = new UIManager();
+        this.guided = new GuidedPlayer('youtube-container');
 
         this.isBreathingEnabled = false;
         this.currentMode = null; // 'guided' or 'focus'
+        this.selectedVideoId = null;
     }
 
     formatDuration(seconds) {
@@ -41,8 +44,39 @@ class App {
 
         this.visual.start(); // Start visual loop immediately for background
 
+        // Initialize Guided Player
+        this.guided.init().then(() => {
+            this.populateGuidedVideos();
+        });
+
         this.setupEventListeners();
         this.ui.showScreen('gateway');
+    }
+
+    /**
+     * Populate the guided videos grid
+     */
+    populateGuidedVideos() {
+        const container = document.getElementById('guided-videos');
+        const videos = GuidedPlayer.getVideos();
+
+        container.innerHTML = videos.map(video => `
+            <div class="guided-video-card" data-video-id="${video.id}">
+                <img class="guided-video-thumbnail" src="${video.thumbnail}" alt="${video.title}">
+                <div class="guided-video-info">
+                    <div class="guided-video-title">${video.title}</div>
+                    <div class="guided-video-duration">${video.duration}</div>
+                </div>
+            </div>
+        `).join('');
+
+        // Add click handlers
+        container.querySelectorAll('.guided-video-card').forEach(card => {
+            card.addEventListener('click', () => {
+                this.selectedVideoId = card.dataset.videoId;
+                this.startImmersion();
+            });
+        });
     }
 
     setupEventListeners() {
@@ -237,24 +271,40 @@ class App {
         this.ui.showScreen('immersion');
         this.ui.initIdleDetection();
 
-        // Start Audio
         if (this.currentMode === 'focus') {
+            // Focus Mode: Start binaural audio
             const baseFreq = parseFloat(document.getElementById('base-hz').value);
             const beatFreq = parseFloat(document.getElementById('focus-hz').value);
             const volume = parseFloat(document.getElementById('volume').value) / 100;
 
             this.audio.setVolume(volume);
             this.audio.play(baseFreq, beatFreq);
+        } else if (this.currentMode === 'guided' && this.selectedVideoId) {
+            // Guided Mode: Start YouTube video
+            // Hide visual background during video playback
+            document.getElementById('visual-container').style.display = 'none';
+            document.getElementById('external-shader-frame').style.display = 'none';
+
+            this.guided.loadVideo(this.selectedVideoId);
         }
 
-        // Start Breath
+        // Start Breath Guide if enabled
         if (this.isBreathingEnabled) {
             this.breath.setActive(true);
         }
     }
 
     stopImmersion() {
+        // Stop audio (Focus mode)
         this.audio.stop();
+
+        // Stop video (Guided mode)
+        if (this.currentMode === 'guided') {
+            this.guided.stop();
+            // Restore visual background
+            document.getElementById('visual-container').style.display = 'block';
+        }
+
         this.breath.setActive(false);
         this.ui.showScreen('selection');
 

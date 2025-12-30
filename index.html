@@ -17,6 +17,13 @@
     <iframe id="external-shader-frame"
         style="display: none; border: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></iframe>
 
+    <!-- YouTube Player Container (for Guided Mode) -->
+    <div id="youtube-container" style="display: none;">
+        <div id="youtube-player"></div>
+        <!-- Overlay to block YouTube controls interaction -->
+        <div id="youtube-overlay"></div>
+    </div>
+
     <!-- Breathing Guide Overlay -->
     <div id="breath-guide">
         <span class="breath-text text-inhale">Inhale</span>
@@ -60,19 +67,14 @@
                 </svg>
             </button>
 
-            <!-- Guided Mode Content (Placeholder for now) -->
-            <div id="selection-guided" style="display: none;">
-                <h2>Select Journey</h2>
-                <div class="card-container">
-                    <div class="card">
-                        <h3>Rainy Tokyo</h3>
-                    </div>
-                    <div class="card">
-                        <h3>Tibetan Bowl</h3>
-                    </div>
-                    <div class="card">
-                        <h3>Space Travel</h3>
-                    </div>
+            <!-- Guided Mode Content -->
+            <div id="selection-guided" class="control-panel" style="display: none;">
+                <div class="panel-title">Select Journey</div>
+                <p style="color: #888; font-size: 0.85rem; margin-bottom: 20px;">
+                    Curated ambient soundscapes for deep relaxation
+                </p>
+                <div id="guided-videos" class="guided-grid">
+                    <!-- Videos will be populated dynamically -->
                 </div>
             </div>
 
